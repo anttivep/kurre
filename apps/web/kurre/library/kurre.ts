@@ -6,7 +6,7 @@ import {
   Procedure,
   Query,
 } from "./procedure";
-import { router } from "./router";
+import { Router, router } from "./router";
 
 export type MiddlewareFn<Context> = ({
   ctx,
@@ -20,33 +20,15 @@ export const initKurre = {
   context: <Context>() => ({
     create: () => ({
       middleware: (fn: MiddlewareFn<Context>) => fn,
-      router: <
-        T extends Record<
-          string,
-          | Query<Context>
-          | Mutation<Context>
-          | InputQuery<z.ZodType<any>, Context>
-          | InputMutation<z.ZodType<any>, Context>
-        >,
-      >(
-        routes: T
-      ) => router<Context, T>(routes),
+      router: <T extends Router<Context>>(routes: T) =>
+        router<Context, T>(routes),
       procedure: new Procedure<Context>(),
     }),
   }),
   create: () => ({
     middleware: (fn: MiddlewareFn<unknown>) => fn,
-    router: <
-      T extends Record<
-        string,
-        | Query<unknown>
-        | Mutation<unknown>
-        | InputQuery<z.ZodType<any>, unknown>
-        | InputMutation<z.ZodType<any>, unknown>
-      >,
-    >(
-      routes: T
-    ) => router<unknown, T>(routes),
+    router: <T extends Router<unknown>>(routes: T) =>
+      router<unknown, T>(routes),
     procedure: new Procedure<unknown>(),
   }),
 };

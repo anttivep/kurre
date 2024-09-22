@@ -49,18 +49,20 @@ export function createKurreProxyClient<T>(options: KurreClientOptions) {
     }
   }
 
-  return new Proxy(
-    {},
-    {
-      get(prop) {
-        return async (args: any) => {
-          return sendRequest(prop.toString(), args);
-        };
-      },
-    }
-  );
-}
+  return new Proxy(options, {
+    get(target, prop, receiver) {
+      if (Reflect.has(target, prop)) {
+        return Reflect.get(target, prop, receiver);
+      }
+      if (typeof prop === "symbol") return;
+      if (prop === "toJSON") return;
 
+      return async (args: Array<Record<string, unknown>>) => {
+        return sendRequest(prop.toString(), args);
+      };
+    },
+  });
+}
 export async function fetcher(
   options: KurreClientOptions,
   req: JsonRpcRequest

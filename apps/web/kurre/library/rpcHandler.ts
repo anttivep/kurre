@@ -1,17 +1,13 @@
 import { z } from "zod";
 import { InputMutation, InputQuery, Mutation, Query } from "./procedure";
 import { NextRequest } from "next/server";
+import { Router } from "./router";
 
-export async function rpcHandler<
-  Context,
-  T extends Record<
-    string,
-    | Query<Context>
-    | Mutation<Context>
-    | InputQuery<z.ZodType<any>, Context>
-    | InputMutation<z.ZodType<any>, Context>
-  >,
->(req: NextRequest, appRouter: T, ctx: Context) {
+export async function rpcHandler<Context, T extends Router<Context>>(
+  req: NextRequest,
+  appRouter: T,
+  ctx: Context
+) {
   const request = await req.json();
   try {
     const operation = appRouter[request.method];
